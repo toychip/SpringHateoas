@@ -14,7 +14,6 @@ public class Event {
 
     private Integer id; // 식별자 id
 
-
     private String name;
     private String description;
     private LocalDateTime beginEnrollmentDateTime;

@@ -1,21 +1,15 @@
 package toyproject.meeting.events;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter @Setter
-@EqualsAndHashCode(of = "id")   // 연관관계 매핑한 것은 넣으면 안돼
-@Entity
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 
-public class Event {
-
-    @Id @GeneratedValue
-    private Integer id; // 식별자 id
+public class EventDto {
 
     private String name;
     private String description;
@@ -27,11 +21,4 @@ public class Event {
     private int basePrice; // (optional)
     private int maxPrice; // (optional)
     private int limitOfEnrollment;  // 최대 인원
-
-    private boolean offline;        // 오프라인 여부
-    private boolean free;           // 무료 여부
-
-    @Enumerated(EnumType.STRING)    // 추후에 바뀔 수 있기 때문에
-    private EventStatus eventStatus = EventStatus.DRAFT;
-
 }

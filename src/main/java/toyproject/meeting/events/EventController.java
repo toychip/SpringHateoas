@@ -42,7 +42,6 @@ public class EventController {
             return ResponseEntity.badRequest().build();
         }
 
-
 //        아래의 과정을 ModelMapper를 이용하여 생략
 //        Event.builder()
 //                .name(eventDto.getName())
@@ -50,6 +49,8 @@ public class EventController {
 //                .build()
 
         Event event = modelMapper.map(eventDto, Event.class);
+        event.update(); // 유무료 판단 여부
+        event.update_location(); // offline 판단 여부
         Event newEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);

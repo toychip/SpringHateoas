@@ -36,16 +36,17 @@ public class EventControllerTest {
     EventValidator eventValidator;
 
     @Test
+    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("Rest Api")
                 .beginEnrollmentDateTime(LocalDateTime.of(2023, 5, 18, 22, 30))
                 .closeEnrollmentDateTime(LocalDateTime.of(2023, 5, 19, 23, 30))
-                .beginEventDateTime(LocalDateTime.of(2023, 5, 18, 22, 30))
-                .endEventDateTime(LocalDateTime.of(2023, 5, 18, 23, 30))
-                .basePrice(100)
-                .maxPrice(200)
+                .beginEventDateTime(LocalDateTime.of(2023, 5, 18, 22, 20))
+                .endEventDateTime(LocalDateTime.of(2023, 5, 19, 23, 30))
+//                .basePrice(100)
+//                .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2스타일 펙토리")
 //                .free(true)     // 기본 가격이 있으면 free(false)가 되어야함. 직접 입력할 수 없어야 함
@@ -65,13 +66,14 @@ public class EventControllerTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string("Content-Type", MediaTypes.HAL_JSON_VALUE))
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("free").value(true))
+                .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
     }
 
     @Test
-    @DisplayName("createEvent 값들이 비어있을때 Bad_Request")
+    @DisplayName("입력값들이 비어있을때 Bad_Request")
     void createEvent_Bad_Request_Empty_Input() throws Exception {
 
         EventDto eventDto = EventDto.builder().build();
@@ -83,7 +85,7 @@ public class EventControllerTest {
     }
 
     @Test
-    @DisplayName("createEvent 값들이 들어오는데 날짜가 이상한경우(이벤트 끝나는 날짜가 더 빠름, basePrice > maxPrice)")
+    @DisplayName("입력값들이 들어오는데 날짜가 이상한경우(이벤트 끝나는 날짜가 더 빠름, basePrice > maxPrice)Bad_Request")
     void createEvent_Bad_Request_Wrong_Input() throws Exception {
 
         EventDto eventDto = EventDto.builder()
@@ -99,10 +101,18 @@ public class EventControllerTest {
                 .location("강남역 D2스타일 펙토리")
                 .build();
 
-        this.mockMvc.perform(post("/api/events/")
+        this.mockMvc.perform(post("/api/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].defaultMessage").exists())
+//                .andExpect(jsonPath("$[0].code").exists())
+                .andDo(print())
         ;
     }
+
+
+
+
 }

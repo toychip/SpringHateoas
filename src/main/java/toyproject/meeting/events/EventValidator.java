@@ -2,6 +2,7 @@ package toyproject.meeting.events;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class EventValidator {
         if (eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() != 0){
             errors.rejectValue("basePrice", "wrongValue", "defaultPrice is wrong");
             errors.rejectValue("maxPrice", "wrongValue", "maxPrice is wrong");
+            errors.reject("wrongPrices", "Values of prices are wrong");
         }
 
         @NotNull LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();

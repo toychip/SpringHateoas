@@ -1,21 +1,19 @@
 package toyproject.meeting.events;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 
+import java.util.Arrays;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 public class EventResource extends EntityModel<Event> {
 
-    @JsonUnwrapped
-    private Event event;
-
-    public EventResource(Event event) {
-        this.event = event;
-    }
-
-    public Event getEvent() {
-        return event;
+    public EventResource(Event event, Link... links) {
+        super(event, Arrays.asList(links));
+//        add(new Link, "http://localhso:8080/api/events/" + event.getId());
+        add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
     }
 }

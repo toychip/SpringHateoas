@@ -53,7 +53,6 @@ public class EventControllerTest {
 //                .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-        System.out.println("event = " + event);
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
@@ -68,9 +67,9 @@ public class EventControllerTest {
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
                 .andExpect(jsonPath("_links.self").exists())
-//                .andExpect(jsonPath("_link.profile").exists())
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-event").exists())
+
         ;
     }
 

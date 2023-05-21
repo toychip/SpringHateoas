@@ -4,19 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -54,8 +53,7 @@ public class EventControllerTest {
 //                .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-//        Mockito.when(eventRepository.save(event)).thenReturn(event);
-
+        System.out.println("event = " + event);
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
@@ -69,6 +67,10 @@ public class EventControllerTest {
                 .andExpect(jsonPath("free").value(true))
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("_links.self").exists())
+//                .andExpect(jsonPath("_link.profile").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
         ;
     }
 
@@ -112,7 +114,34 @@ public class EventControllerTest {
         ;
     }
 
+    @Test
+    @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    void queryEvents() throws Exception{
 
+        //Given
+        IntStream.range(0, 30).forEach(this::generateEvent);
 
+        //When
+        this.mockMvc.perform(get("/api/events")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .param("sort", "name,DESC")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
+        ;
+    }
 
+    private void generateEvent(int index) {
+        Event event = Event.builder()
+                .name("event " + index)
+                .description("test event")
+                .build();
+
+        this.eventRepository.save(event);
+
+    }
 }
+
+

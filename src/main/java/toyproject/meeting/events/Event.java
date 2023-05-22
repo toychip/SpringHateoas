@@ -2,7 +2,7 @@ package toyproject.meeting.events;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Builder
@@ -32,6 +32,7 @@ public class Event {
     private boolean free;           // 무료 여부
 
     @Enumerated(EnumType.STRING)    // 추후에 바뀔 수 있기 때문에
+    @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
 
     public void update() {

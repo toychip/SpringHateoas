@@ -84,8 +84,8 @@ public class EventControllerTest {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("query-events").description("link to query events"),
-                                linkWithRel("update-event").description("link to update an existing event")
-//                                , linkWithRel("profile").description("link to profile")
+                                linkWithRel("update-event").description("link to update an existing event"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -124,11 +124,9 @@ public class EventControllerTest {
                                 fieldWithPath("eventStatus").description("event status"),
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-events.href").description("link to query events list"),
-                                fieldWithPath("_links.update-event.href").description("link to update event list")
-//                                        fieldWithPath("_links.profile.href").description("link to profile")
-                        )))
+                                fieldWithPath("_links.update-event.href").description("link to update event list"),
+                                fieldWithPath("_links.profile.href").description("link to profile"))))
         ;
-
     }
 
     @Test
@@ -168,10 +166,6 @@ public class EventControllerTest {
                 .andExpect(jsonPath("$.fieldErrors[0].defaultMessage").exists())
                 .andExpect(jsonPath("$.fieldErrors[0].code").exists())
                 .andExpect(jsonPath("$.globalErrors[0].objectName").exists())
-
-
-//                .andExpect(jsonPath("_links.index").exists())
-
                 .andDo(print())
         ;
     }
@@ -192,16 +186,46 @@ public class EventControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("query-events"))    // page에 대한 것 더 추가해야함
         ;
     }
 
-    private void generateEvent(int index) {
+    @Test
+    @DisplayName("기존의 이벤트를 하나 조회하기")
+    public void getEvent() throws Exception {
+        //Given
+
+        Event event = this.generateEvent(100);
+
+        //when & Then
+
+        this.mockMvc.perform(get("/api/events/{id}", event.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("get-an-event"))
+        ;
+    }
+
+    @Test
+    @DisplayName("없는 이벤트는 조회했을 때 404 응답받기")
+    public void getEvent404() throws Exception {
+        this.mockMvc.perform(get("/api/events/11883"))
+                .andExpect(status().isNotFound());
+    }
+
+    private Event generateEvent(int index) {
         Event event = Event.builder()
                 .name("event " + index)
                 .description("test event")
                 .build();
 
-        this.eventRepository.save(event);
+        return this.eventRepository.save(event);
     }
 
 }

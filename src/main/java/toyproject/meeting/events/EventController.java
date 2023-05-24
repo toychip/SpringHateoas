@@ -15,13 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import toyproject.meeting.common.ErrorsResource;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -70,7 +68,7 @@ public class EventController {
 //        eventResource.add(selfLinkBuilder.withSelfRel());
         eventResource.add(selfLinkBuilder.withRel("update-event"));
 //        Profile 링크 추가
-//        eventResource.add(linkTo("/docs/index.html#resources-events-create").withRel("profile"));
+        eventResource.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventResource);
     }
@@ -83,9 +81,23 @@ public class EventController {
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
 
-        var entityModels = assembler.toModel(page);
-
+        var entityModels = assembler.toModel(page, e -> new EventResource(e));
+        entityModels.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok(entityModels);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity getEvent(@PathVariable Integer id){
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if(optionalEvent.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        Event event = optionalEvent.get();
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
+
+        return ResponseEntity.ok(eventResource);
     }
 
 }

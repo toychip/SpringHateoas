@@ -38,11 +38,14 @@ dependencies {
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.12'
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.1'
 
-	//Spring Rest docs
+	//Spring Rest docs 추가
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.0'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0'
-//	testImplementation 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.0'
 	testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '5.3.0'
+
+	//Spring Security 추가
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.7.RELEASE'
 
 }
 ext {

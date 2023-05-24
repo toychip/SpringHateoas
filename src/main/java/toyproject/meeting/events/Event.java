@@ -3,6 +3,8 @@ package toyproject.meeting.events;
 import lombok.*;
 
 import jakarta.persistence.*;
+import toyproject.meeting.accounts.Account;
+
 import java.time.LocalDateTime;
 
 @Builder
@@ -34,6 +36,8 @@ public class Event {
     @Enumerated(EnumType.STRING)    // 추후에 바뀔 수 있기 때문에
     @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
+    @ManyToOne
+    private Account manager;
 
     public void update() {
         if (this.basePrice == 0 && this.maxPrice == 0) {

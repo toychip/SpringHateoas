@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.restdocs.RestDocumentationExtension;
+import toyproject.meeting.common.BaseControllerTest;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
@@ -30,25 +31,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs(uriScheme = "https", uriHost = "meeting.apimanual.com", uriPort = 443)
-@ExtendWith(RestDocumentationExtension.class)
-public class EventControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+public class EventControllerTest extends BaseControllerTest {
 
-    @Autowired
-    ObjectMapper objectMapper;
+
     @Autowired
     private EventRepository eventRepository;
 
     @Autowired
     EventValidator eventValidator;
 
-    @Autowired
-    ModelMapper modelMapper;
 
     private RequestSpecification spec;
 
@@ -200,7 +192,7 @@ public class EventControllerTest {
 
     @Test
     @DisplayName("기존의 이벤트를 하나 조회하기")
-    public void getEvent() throws Exception {
+    void getEvent() throws Exception {
         //Given
 
         Event event = this.generateEvent(100);
@@ -220,14 +212,14 @@ public class EventControllerTest {
 
     @Test
     @DisplayName("없는 이벤트는 조회했을 때 404 응답받기")
-    public void getEvent404() throws Exception {
+    void getEvent404() throws Exception {
         this.mockMvc.perform(get("/api/events/11883"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("이벤트를 정상적으로 수정하기")
-    public void updateEvent() throws Exception {
+    void updateEvent() throws Exception {
         // Given
         Event event = this.generateEvent(200);
         Event eventDto = modelMapper.map(event, Event.class);
@@ -248,7 +240,7 @@ public class EventControllerTest {
 
     @Test
     @DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패")
-    public void updateEvent400_Wrong() throws Exception {
+    void updateEvent400_Wrong() throws Exception {
         // Given
         Event event = this.generateEvent(200);
 
@@ -268,7 +260,7 @@ public class EventControllerTest {
 
     @Test
     @DisplayName("존재하지 않는 이벤트 수정 실패")
-    public void updateEvent404_Wrong() throws Exception {
+    void updateEvent404_Wrong() throws Exception {
         // Given
         Event event = this.generateEvent(200);
 
@@ -286,7 +278,7 @@ public class EventControllerTest {
 
     @Test
     @DisplayName("입력값이 비어있는 경우에 이벤트 수정 실패")
-    public void updateEvent400_Empty() throws Exception {
+    void updateEvent400_Empty() throws Exception {
         // Given
         Event event = this.generateEvent(200);
 

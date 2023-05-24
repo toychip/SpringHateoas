@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import toyproject.meeting.common.ErrorsResource;
 
 import java.net.URI;
 
@@ -39,13 +40,13 @@ public class EventController {
     public ResponseEntity createEvent(@RequestBody @Validated EventDto eventDto, Errors errors) {
 
         if (errors.hasErrors()) {    // 기본적인 검증, @NotEmpty~ 등의 오류가 있으면
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);   // 논리적인 오류가 있으면
 
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
 //        아래의 과정을 ModelMapper를 이용하여 생략
@@ -74,6 +75,10 @@ public class EventController {
         return ResponseEntity.created(createdUri).body(eventResource);
     }
 
+    private static ResponseEntity<ErrorsResource> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
+    }
+
     @GetMapping
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
@@ -83,7 +88,4 @@ public class EventController {
         return ResponseEntity.ok(entityModels);
     }
 
-//    private ResponseEntity badRequest(Errors errors) {
-//        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
-//    }
 }

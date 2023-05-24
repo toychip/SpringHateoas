@@ -1,5 +1,6 @@
 package toyproject.meeting.events;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -86,7 +87,7 @@ public class EventController {
         return ResponseEntity.ok(entityModels);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity getEvent(@PathVariable Integer id){
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if(optionalEvent.isEmpty()){
@@ -100,4 +101,32 @@ public class EventController {
         return ResponseEntity.ok(eventResource);
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity updateEvent(
+            @PathVariable Integer id,
+            @RequestBody @Valid EventDto eventDto,
+            Errors errors){
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {   // 존재하지 않는 id
+            return ResponseEntity.notFound().build();
+        }
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        this.eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        } // 로직상 문제
+
+        Event existingEvent = optionalEvent.get();
+
+        this.modelMapper.map(eventDto, existingEvent);
+        Event savedEvent = this.eventRepository.save(existingEvent);// service가 없으므로 Transactional이 없음
+        EventResource eventResource = new EventResource(savedEvent);
+        eventResource.add(Link.of("/docs/index.html#resources-events-update").withRel("profile"));
+
+        return ResponseEntity.ok(eventResource);
+    }
 }
